@@ -4,52 +4,83 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    [SerializeField] private GameField gameField;
+    [SerializeField] AstarPathFinding astarPathFinding;
+    private AICharacter aiCharacter;
+
     public int score;
-    void Start()
+    [SerializeField] private int blockCount = 128;
+    [SerializeField] private int rewardCount = 16;
+
+    private List<GameObject> rewardList = new List<GameObject>();
+
+    void Awake()
     {
-        FindObjectOfType<GameField>().InitGameField(64, 64);
+        InitGameController();
+    }
 
-        int blockCount = 128;
+    void InitGameController()
+    {
+        InitGameField();
+        InitRewards();
+        InitAICharacter();
+    }
 
-        while(blockCount > 0)
-        {
-            int rdX = Random.Range(0, 64);
-            int rdY = Random.Range(0, 64);
-            if (FindObjectOfType<GameField>().IsCellBlocked(rdX, rdY))
-                continue;
-
-            FindObjectOfType<GameField>().BlockCell(rdX, rdY);
-            blockCount--;
-        }
-
-        int rewardCount = 16;
-
-        while(rewardCount> 0)
-        {
-            int rdX = Random.Range(0, 64);
-            int rdY = Random.Range(0, 64);
-
-            if (FindObjectOfType<GameField>().IsCellBlocked(rdX, rdY))
-                continue;
-
-            FindObjectOfType<GameField>().CreateReward(rdX, rdY);
-            rewardCount--;
-        }
-
-        FindObjectOfType<GameField>().InitAICharacter(0, 0);
-
-
+    void InitAICharacter()
+    {
         score = 0;
 
-        GameObject firstReward = FindObjectOfType<GameField>().CreateReward(6, 9);
+        aiCharacter = gameField.InitAICharacter(0, 0);
 
-        Vector3 rewardPosition = firstReward.transform.position;
+        if(aiCharacter == null)
+        {
+            Debug.LogWarning("Please setup AI Character object properly.");
+            return;
+        }
 
-        AICharacter aiCharacter = FindObjectOfType<AICharacter>();
+        StartCoroutine(AIFindRewardLoop());
+    }
 
-        Queue<Vector3> queuePath = FindObjectOfType<AstarPathFinding>().GetPath(aiCharacter.transform.position, rewardPosition);
+    void InitGameField()
+    {
+        gameField.InitGameField(64, 64);
 
-        aiCharacter.SetPath(queuePath);
+        while (blockCount > 0)
+        {
+            int rdX = Random.Range(0, 64);
+            int rdY = Random.Range(0, 64);
+            if (gameField.IsCellBlocked(rdX, rdY))
+                continue;
+
+            gameField.BlockCell(rdX, rdY);
+            blockCount--;
+        }
+    }
+
+    void InitRewards()
+    {
+        while (rewardCount > 0)
+        {
+            int rdX = Random.Range(0, 64);
+            int rdY = Random.Range(0, 64);
+
+            if (gameField.IsCellBlocked(rdX, rdY))
+                continue;
+
+            var reward = gameField.CreateReward(rdX, rdY);
+            rewardList.Add(reward); // add reward to list
+            rewardCount--;
+        }
+    }
+
+    IEnumerator AIFindRewardLoop()
+    {
+        for (int i = 0; i < rewardList.Count; i++)
+        {
+            yield return new WaitUntil(() => aiCharacter.isMoving == false);
+            var queuePath = astarPathFinding.GetPath(aiCharacter.transform.position, rewardList[i].transform.position);
+            aiCharacter.SetPath(queuePath);
+        }
     }
 
     void Update()

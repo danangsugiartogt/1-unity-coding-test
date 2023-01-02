@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,9 +10,16 @@ public class AICharacter : MonoBehaviour
     public float speed = 5;
     public bool isMoving;
 
+    private Action onPathCompleted;
+
     void Awake()
     {
         targetPosition = transform.position;
+    }
+
+    public void SetOnPathCompleted(Action action)
+    {
+        onPathCompleted = action;
     }
 
     public void SetPath(Queue<Vector3> path)
