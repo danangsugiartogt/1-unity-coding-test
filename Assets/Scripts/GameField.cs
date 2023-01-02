@@ -62,10 +62,12 @@ public class GameField : MonoBehaviour
         y = (int)(pos.z);
     }
 
-    public void InitAICharacter(int x,int y)
+    public AICharacter InitAICharacter(int x,int y)
     {
         GameObject ai = Instantiate(aiPrefab);
         ai.transform.position = GetCellPosition(x, y);
+
+        return ai.GetComponent<AICharacter>();
     }
 
     public GameObject CreateReward(int x,int y)
