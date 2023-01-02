@@ -20,6 +20,7 @@ public class FPSCounter : MonoBehaviour
 
     void OnGUI()
     {
+        GUI.contentColor = Color.black;
         GUI.Label(new Rect(10, 10, 200, 20), displayText);
     }
 }
