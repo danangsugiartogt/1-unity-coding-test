@@ -8,10 +8,14 @@ public class CameraFollow : MonoBehaviour
     public float smoothSpeed = 0.125f; // The speed at which the camera should follow the actor
     public Vector3 offset; // The offset from the actor's position that the camera should be
 
+    public void Init(Transform target)
+    {
+        this.target = target;
+    }
+
     void LateUpdate()
     {
-        if (target == null)
-            target = FindObjectOfType<AICharacter>().transform;
+        if (target == null) return;
 
         // Calculate the camera's position based on the actor's position and the specified offset
         Vector3 desiredPosition = target.position + offset;

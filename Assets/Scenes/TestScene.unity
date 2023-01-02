@@ -637,9 +637,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameField: {fileID: 1537501531}
   astarPathFinding: {fileID: 1117239114}
+  cameraFollow: {fileID: 534669906}
   score: 0
   blockCount: 128
-  rewardCount: 40
+  rewardCount: 16
 --- !u!1 &1794508639
 GameObject:
   m_ObjectHideFlags: 0

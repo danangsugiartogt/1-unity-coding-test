@@ -5,7 +5,8 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     [SerializeField] private GameField gameField;
-    [SerializeField] AstarPathFinding astarPathFinding;
+    [SerializeField] private AstarPathFinding astarPathFinding;
+    [SerializeField] private CameraFollow cameraFollow;
     private AICharacter aiCharacter;
 
     [SerializeField] private int score;
@@ -26,6 +27,8 @@ public class GameController : MonoBehaviour
         InitGameField();
         InitRewards();
         InitAICharacter();
+
+        cameraFollow.Init(aiCharacter.transform);
     }
 
     void InitAICharacter()
