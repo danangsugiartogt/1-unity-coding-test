@@ -7,12 +7,20 @@ public class AICharacter : MonoBehaviour
 {
     private Queue<Vector3> path = new Queue<Vector3>();
     private Vector3 targetPosition;
-    public float speed = 5;
-    public bool isMoving;
+
+    [SerializeField] private float speed = 5;
+    [SerializeField] private bool isMoving;
+
+    private Action onPathCompleted;
 
     void Awake()
     {
         targetPosition = transform.position;
+    }
+
+    public void SetOnPathCompleted(Action action)
+    {
+        onPathCompleted = action;
     }
 
     public void SetPath(Queue<Vector3> path)
@@ -27,6 +35,7 @@ public class AICharacter : MonoBehaviour
             if(path.Count <= 0)
             {
                 isMoving = false;
+                onPathCompleted?.Invoke();
                 return;
             }
             targetPosition = path.Dequeue();

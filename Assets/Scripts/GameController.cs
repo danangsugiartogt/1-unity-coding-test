@@ -8,11 +8,13 @@ public class GameController : MonoBehaviour
     [SerializeField] AstarPathFinding astarPathFinding;
     private AICharacter aiCharacter;
 
-    public int score;
+    [SerializeField] private int score;
     [SerializeField] private int blockCount = 128;
     [SerializeField] private int rewardCount = 16;
 
     private List<GameObject> rewardList = new List<GameObject>();
+
+    private bool isWin = false;
 
     void Awake()
     {
@@ -38,7 +40,8 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        StartCoroutine(AIFindRewardLoop());
+        aiCharacter.SetOnPathCompleted(OnPathCompleted); // set AI callback
+        MoveAI();
     }
 
     void InitGameField()
@@ -73,18 +76,32 @@ public class GameController : MonoBehaviour
         }
     }
 
-    IEnumerator AIFindRewardLoop()
+    void OnPathCompleted()
     {
-        for (int i = 0; i < rewardList.Count; i++)
+        if (isWin) return;
+
+        AddScore();
+        if(score < rewardList.Count)
         {
-            yield return new WaitUntil(() => aiCharacter.isMoving == false);
-            var queuePath = astarPathFinding.GetPath(aiCharacter.transform.position, rewardList[i].transform.position);
-            aiCharacter.SetPath(queuePath);
+            if (rewardList[score] != null) // reward already claimed
+                MoveAI();
+        }
+        else
+        {
+            UIController.Instance.DisplayWinText();
+            isWin = true;
         }
     }
 
-    void Update()
+    void MoveAI()
     {
-        FindObjectOfType<UIController>().SetScore(score);
+        var queuePath = astarPathFinding.GetPath(aiCharacter.transform.position, rewardList[score].transform.position);
+        aiCharacter.SetPath(queuePath);
+    }
+
+    void AddScore()
+    {
+        score++;
+        UIController.Instance.SetScore(score);
     }
 }
